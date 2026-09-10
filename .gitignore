@@ -1,0 +1,6 @@
+*.log
+__pycache__/
+.claude/
+plugins/
+pipeline_hub_config.json
+PipelineHub.exe
