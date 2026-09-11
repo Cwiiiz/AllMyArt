@@ -4137,7 +4137,7 @@ async function renderSettings(){
     <div class="sec" style="margin-top:18px">REVIEW</div>
     ${row('👤 <b>Your name</b> — signed on review actions',
       '',
-      `<input type="text" id="uname" value="${esc(S.user_name||'')}" placeholder="e.g. Chris / Medon"
+      `<input type="text" id="uname" value="${esc(S.user_name||'')}" placeholder="e.g. Tim / Donna"
         style="width:170px" onchange="saveUserName(this.value)">`,
       'Review states are stored in each asset (pipeline.json) and travel with it on sync — teammates see who approved what.')}
     <div class="sec" style="margin-top:18px">DISCORD</div>
