@@ -1,43 +1,26 @@
 # All My Art
 
-A Windows desktop app for managing every asset across all the games I work on — built for my Roblox game development pipeline.
+A Windows desktop app for managing every asset across all the games I work on, built for my Roblox game development pipeline.
 
 ## Why I built it
 
-For years I set up folder structures for my 3D models by hand, which meant no two projects looked the same. That inconsistency turned into chaos: I constantly lost track of which files belonged to which asset, and the time I should have spent modelling went into hunting for files instead.
+For years I set up folder structures for my 3D models by hand, which meant no two projects ever looked the same. That inconsistency turned into chaos: I constantly lost track of which files belonged to which asset, and the time I should have spent modelling went into hunting for files instead.
 
-So I built something to automate the tedious parts — a desktop app that runs locally on my machine and keeps every project in the same shape.
+So I built something to automate the tedious parts, a desktop app that runs locally on my machine and keeps every project in the same shape.
 
 ## What it does
 
-**Assets**
-- Create assets with the matching project, type and category
-- See which files are present and which are still missing
-- Check model stats before exporting to Roblox
-- Add todos and request revisions
+**Assets.** Every asset is created with its matching project, type and category, so the folder structure is identical every time. The app then shows which files are present and which are still missing, checks model stats before anything goes to Roblox, and keeps todos and revision requests attached to the asset itself.
 
-**Views**
-- **Overview** — every asset across every game at a glance
-- **Board** — drag and drop assets between pipeline stages
-- **Library** — store alphas, decals, faces, references and tilings
-- **Journey** — track Robux earnings and hours spent in Blender, Substance 3D Painter, ZBrush and Cinema 4D
+**Views.** The **Overview** shows every asset across every game at a glance. The **Board** lets me drag assets between pipeline stages. The **Library** holds alphas, decals, faces, references and tilings. The **Journey** view tracks my Robux earnings alongside the hours I spend in Blender, Substance 3D Painter, ZBrush and Cinema 4D.
 
-**Sync & settings**
-- One-click *Sync All* to back everything up to the cloud
-- Configurable local root, cloud root and library folders
-- Rescan all assets for maintenance
+**Sync and settings.** One click on *Sync All* backs everything up to the cloud. The local root, cloud root and library folders are all configurable, and a rescan rebuilds the asset list when something changes outside the app.
 
-**Integrations**
-- **Pipeline Hub Export** — Blender add-on, exports straight into the right asset folder
-- **Pipeline Hub Painter** — Substance 3D Painter plugin, same idea for textures
-
-Both plugins are installed from inside the app.
+**Integrations.** The **Pipeline Hub Export** add-on for Blender exports straight into the correct asset folder, and the **Pipeline Hub Painter** plugin does the same for textures in Substance 3D Painter. Both are installed from inside the app.
 
 ## Requirements
 
-- Windows
-- [Python 3](https://www.python.org/downloads/) (only needed to build the app)
-- Blender and Substance 3D Painter for the integrations
+Windows, and [Python 3](https://www.python.org/downloads/) if you want to build the app yourself. Blender and Substance 3D Painter are only needed for the integrations.
 
 ## How to run
 
@@ -45,12 +28,12 @@ Download `pipeline_hub.py` and `Build_EXE.bat` into the same folder, then run th
 
 To run it without building:
 
-    python pipeline_hub.py
+```
+python pipeline_hub.py
+```
 
 ## Still in progress
 
 Review states and Discord notifications aren't finished yet.
-
----
 
 Built with Python, pywebview and PyInstaller.
