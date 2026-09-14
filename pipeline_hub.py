@@ -2553,6 +2553,54 @@ class Api:
             self._notify_discord(msg)
         return {"ok": True, "review": r}
 
+    def file_rename(self, path, new_name):
+        """Rename a file inside an asset folder. Refuses anything outside the local root."""
+        root = self._root()
+        try:
+            p = Path(path).resolve()
+        except Exception:
+            return {"ok": False, "error": "Bad path."}
+        if not root or root.resolve() not in p.parents:
+            return {"ok": False, "error": "That file is outside your local root."}
+        if not p.is_file():
+            return {"ok": False, "error": "File not found."}
+        nn = safe_name(new_name, keep_ext_from=p)
+        if not nn:
+            return {"ok": False, "error": 'Invalid name (no \\ / : * ? " < > |).'}
+        dst = p.with_name(nn)
+        if dst == p:
+            return {"ok": True, "name": nn}
+        if dst.exists():
+            return {"ok": False, "error": f"“{nn}” already exists in that folder."}
+        try:
+            p.rename(dst)
+        except Exception as e:
+            return {"ok": False, "error": f"Rename failed: {e}"}
+        return {"ok": True, "name": nn, "path": str(dst)}
+
+    def audio_data(self, path):
+        """Return an audio file as a data URI so the UI can play it."""
+        root = self._root()
+        try:
+            p = Path(path).resolve()
+        except Exception:
+            return {"ok": False, "error": "Bad path."}
+        if not root or root.resolve() not in p.parents:
+            return {"ok": False, "error": "That file is outside your local root."}
+        if not p.is_file() or p.suffix.lower() not in AUDIO_EXT:
+            return {"ok": False, "error": "Not an audio file."}
+        try:
+            if p.stat().st_size > 30_000_000:
+                return {"ok": False, "error": "Too large to preview here — use Open."}
+            import base64
+            mime = {".wav": "audio/wav", ".ogg": "audio/ogg", ".mp3": "audio/mpeg",
+                    ".flac": "audio/flac", ".aiff": "audio/aiff",
+                    ".aif": "audio/aiff"}.get(p.suffix.lower(), "audio/*")
+            return {"ok": True,
+                    "uri": f"data:{mime};base64," + base64.b64encode(p.read_bytes()).decode()}
+        except Exception as e:
+            return {"ok": False, "error": str(e)}
+
     def ensure_folder(self, game, category, name, sub):
         p = self._asset_path(game, category, name)
         if not p or sub not in SUBFOLDERS:
@@ -3517,9 +3565,12 @@ function renderDetail(){
       fi=f.file?`${esc(f.file.name)} &nbsp;·&nbsp; ${f.file.time}`:'not found';
       cls=f.file?'':' miss';
     }
+    const isAudio=f.file&&/\.(wav|ogg|mp3|flac|aiff?)$/i.test(f.file.name);
     return `<div class="frow"><span class="fl">${esc(f.label)}</span>
       <span class="fi${cls}">${fi}</span>
+      ${isAudio?`<button class="sbtn play" onclick="playFile(this,'${escJs(f.file.path)}')">▶</button>`:''}
       ${f.file?`<button class="sbtn open" onclick="openP('${escJs(f.file.path)}')">Open</button>`:''}
+      ${f.file?`<button class="sbtn" onclick="renameFile('${escJs(f.file.path)}','${escJs(f.file.name)}')">Rename</button>`:''}
       ${f.folder?`<button class="sbtn" onclick="openP('${escJs(f.folder)}')">Folder</button>`
                 :`<button class="sbtn" onclick="mkFolder('${esc(f.sub)}')">＋ Create</button>`}
     </div>`;}).join('');
@@ -4094,6 +4145,29 @@ async function setReview(state){
        state==='changes'?'Changes requested':'Review reset');
   await refresh();}
 async function openP(p){await api('open_path',p);}
+async function renameFile(path,cur){
+  const v=prompt('New file name:',cur);
+  if(!v||v===cur)return;
+  const r=await api('file_rename',path,v);
+  if(!r.ok){toast(r.error);return;}
+  toast('Renamed → '+r.name);
+  await refresh();
+}
+let _audio=null,_audioBtn=null;
+function stopAudio(){
+  if(_audio){_audio.pause();_audio=null;}
+  if(_audioBtn){_audioBtn.textContent='▶';_audioBtn=null;}
+}
+async function playFile(btn,path){
+  const wasThis=(_audioBtn===btn);
+  stopAudio();
+  if(wasThis)return;                      // clicking the playing button stops it
+  const r=await api('audio_data',path);
+  if(!r.ok){toast(r.error);return;}
+  _audio=new Audio(r.uri);_audioBtn=btn;btn.textContent='⏸';
+  _audio.onended=stopAudio;
+  _audio.play().catch(()=>{toast('Playback failed');stopAudio();});
+}
 async function mkFolder(sub){await api('ensure_folder',sel.game,sel.category,sel.name,sub);await refresh();}
 async function doSyncAll(){
   const b=$('syncall');b.disabled=true;const t=b.textContent;b.textContent='☁ Syncing…';
